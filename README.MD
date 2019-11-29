@@ -18,3 +18,18 @@ mkdir -p /swarm/traefik/
 
 echo "admin" | docker secret create basic-auth-user -
 echo "P@sw0rd" | docker secret create basic-auth-password -
+
+# Order
+
+## Traefik
+
+docker stack deploy -c docker-compose.yml traefik --with-registry-auth
+
+User: admin
+Password: senha123
+
+http://traefik.docker.internal/dashboard/#/
+
+## Prometheus
+
+docker stack deploy -c docker-compose.yml prometheus --with-registry-auth

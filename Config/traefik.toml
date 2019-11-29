@@ -22,7 +22,7 @@
       insecure = true
     [entryPoints.https.forwardedHeaders]
       insecure = true
-     
+
 
 ################################################################
 # Traefik logs configuration
@@ -60,7 +60,6 @@
 [api]
   dashboard = true
   debug = true
-
 
 
 ################################################################
