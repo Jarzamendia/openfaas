@@ -1,0 +1,126 @@
+version: '2.1'
+
+services:
+
+  kong-migrations:
+    image: "kong:latest"
+    command: kong migrations bootstrap
+    environment:
+      KONG_DATABASE: postgres
+      KONG_PG_DATABASE: kong
+      KONG_PG_HOST: postgres
+      KONG_PG_PASSWORD: kong
+      KONG_PG_USER: kong
+    networks:
+      - db_net
+    deploy:
+        resources:
+            limits:
+                memory: 200M
+        restart_policy:
+            condition: on-failure
+        placement:
+            constraints:
+                - "node.platform.os == linux"
+
+  kong-migrations-up:
+    image: "${KONG_DOCKER_TAG:-kong:latest}"
+    command: kong migrations up && kong migrations finish
+    environment:
+      KONG_DATABASE: postgres
+      KONG_PG_DATABASE: ${KONG_PG_DATABASE:-kong}
+      KONG_PG_HOST: db
+      KONG_PG_PASSWORD: ${KONG_PG_PASSWORD:-kong}
+      KONG_PG_USER: ${KONG_PG_USER:-kong}
+    networks:
+      - db_net
+    deploy:
+        resources:
+            limits:
+                memory: 200M
+        restart_policy:
+            condition: on-failure
+        placement:
+            constraints:
+                - "node.platform.os == linux"
+
+  kong:
+    image: "kong:latest"
+    user: "root"
+    environment:
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_LISTEN: '0.0.0.0:8001'
+      KONG_CASSANDRA_CONTACT_POINTS: db
+      KONG_DATABASE: postgres
+      KONG_PG_DATABASE: kong
+      KONG_PG_HOST: postgres
+      KONG_PG_PASSWORD: kong
+      KONG_PG_USER: kong
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+    networks:
+      - db_net
+      - proxy_net
+      - function_net
+    ports:
+      - "8000:8000/tcp"
+      - "8001:8001/tcp"
+      - "8443:8443/tcp"
+      - "8444:8444/tcp"
+    healthcheck:
+      test: ["CMD", "kong", "health"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+    deploy:
+        resources:
+            limits:
+                memory: 200M
+        restart_policy:
+            condition: on-failure
+            delay: 5s
+            max_attempts: 20
+            window: 380s
+        placement:
+            constraints:
+                - "node.platform.os == linux"
+        labels:
+            - "traefik.enable=true"
+            - "traefik.http.routers.gkong_router.rule=Host(`kong.docker.internal`)"
+            - "traefik.http.routers.kong_router.service=kong_service"
+            - "traefik.http.routers.kong_router.entrypoints=http,https"
+            - "traefik.http.services.kong_service.loadbalancer.server.port=8000"
+
+  postgres:
+    image: postgres:9.5
+    environment:
+      POSTGRES_DB: kong
+      POSTGRES_PASSWORD: kong
+      POSTGRES_USER: kong
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "kong"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    deploy:
+        resources:
+            limits:
+                memory: 200M
+        restart_policy:
+            condition: on-failure
+        placement:
+            constraints:
+                - "node.platform.os == linux"
+    networks:
+      - db_net
+    volumes:
+      - /swarm/kong/postgres/:/var/lib/postgresql/data
+
+networks:
+  db_net:
+    external: true
+  proxy_net:
+    external: true
+  function_net:
+    external: true

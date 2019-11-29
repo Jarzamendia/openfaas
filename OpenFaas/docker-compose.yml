@@ -1,0 +1,157 @@
+services:
+
+    gateway:
+        image: openfaas/gateway:0.18.2
+        networks:
+            - function_net
+            - proxy_net
+        ports:
+            - 8080:8080
+        environment:
+            functions_provider_url: "http://faas-swarm:8080/"
+            read_timeout: "5m5s" # Maximum time to read HTTP request
+            write_timeout: "5m5s" # Maximum time to write HTTP response
+            upstream_timeout: "5m" # Maximum duration of upstream function call - should be more than read_timeout and write_timeout
+            dnsrr: "true" # Temporarily use dnsrr in place of VIP while issue persists on PWD
+            faas_nats_address: "nats"
+            faas_nats_port: 4222
+            direct_functions: "true" # Functions are invoked directly over the overlay network
+            direct_functions_suffix: ""
+            basic_auth: "true"
+            secret_mount_path: "/run/secrets/"
+            scale_from_zero: "true" # Enable if you want functions to scale from 0/0 to min replica count upon invoke
+            max_idle_conns: 1024
+            max_idle_conns_per_host: 1024
+            auth_proxy_url: "http://basic-auth-plugin:8080/validate"
+            auth_proxy_pass_body: "false"
+        deploy:
+            resources:
+                limits:
+                    memory: 200M
+            restart_policy:
+                condition: on-failure
+                delay: 5s
+                max_attempts: 20
+                window: 380s
+            placement:
+                constraints:
+                    - "node.platform.os == linux"
+            labels:
+                - "traefik.enable=true"
+                - "traefik.http.routers.gateway_router.rule=Host(`faas.docker.internal`)"
+                - "traefik.http.routers.gateway_router.service=gateway_service"
+                - "traefik.http.routers.gateway_router.entrypoints=http,https"
+                - "traefik.http.services.gateway_service.loadbalancer.server.port=8080"
+
+        secrets:
+            - basic-auth-user
+            - basic-auth-password
+
+    basic-auth-plugin:
+        image: openfaas/basic-auth-plugin:0.18.2
+        networks:
+            - function_net
+        environment:
+            secret_mount_path: "/run/secrets/"
+            user_filename: "basic-auth-user"
+            pass_filename: "basic-auth-password"
+        deploy:
+            placement:
+                constraints:
+                    - "node.role == manager"
+                    - "node.platform.os == linux"
+            resources:
+                limits:
+                    memory: 100M
+            restart_policy:
+                condition: on-failure
+                delay: 5s
+                max_attempts: 20
+                window: 380s
+        secrets:
+            - basic-auth-user
+            - basic-auth-password
+
+    faas-swarm:
+        image: openfaas/faas-swarm:0.8.2
+        networks:
+            - function_net
+        volumes:
+            - "/var/run/docker.sock:/var/run/docker.sock"
+        environment:
+            read_timeout: "5m5s" # set both here, and on your functions
+            write_timeout: "5m5s" # set both here, and on your functions
+            DOCKER_API_VERSION: "1.30"
+            basic_auth: "true"
+            secret_mount_path: "/run/secrets/"
+        deploy:
+            placement:
+                constraints:
+                    - "node.role == manager"
+                    - "node.platform.os == linux"
+            resources:
+                limits:
+                    memory: 100M
+            restart_policy:
+                condition: on-failure
+                delay: 5s
+                max_attempts: 20
+                window: 380s
+        secrets:
+            - basic-auth-user
+            - basic-auth-password
+
+    nats:
+        image: nats-streaming:0.11.2
+        ports:
+            - 4222:4222
+            - 8222:8222
+        command: "--store memory --cluster_id faas-cluster -m 8222"
+        networks:
+            - function_net
+        deploy:
+            resources:
+                limits:
+                    memory: 125M
+            placement:
+                constraints:
+                    - "node.platform.os == linux"
+
+    queue-worker:
+        image: openfaas/queue-worker:0.8.1
+        networks:
+            - function_net
+        environment:
+            max_inflight: "1"
+            ack_wait: "5m5s" # Max duration of any async task / request
+            basic_auth: "true"
+            secret_mount_path: "/run/secrets/"
+            gateway_invoke: "true"
+            faas_gateway_address: "gateway"
+        deploy:
+            resources:
+                limits:
+                    memory: 50M
+            restart_policy:
+                condition: on-failure
+                delay: 5s
+                max_attempts: 20
+                window: 380s
+            placement:
+                constraints:
+                    - "node.platform.os == linux"
+        secrets:
+            - basic-auth-user
+            - basic-auth-password
+
+networks:
+  proxy_net:
+    external: true
+  function_net:
+    external: true
+
+secrets:
+    basic-auth-user:
+        external: true
+    basic-auth-password:
+        external: true
