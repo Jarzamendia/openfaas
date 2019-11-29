@@ -113,7 +113,6 @@ services:
     volumes:
       - /swarm/kong/postgres/:/var/lib/postgresql/data
 
-
   konga-prepare:
     image: pantsel/konga:next
     command: "-c prepare -a postgres -u postgresql://kong:kong@postgres:5432/konga_db"
@@ -139,6 +138,7 @@ services:
       DB_ADAPTER: postgres
       DB_HOST: postgres
       DB_USER: kong
+      DB_PASSWORD: kong
       TOKEN_SECRET: km1GUr4RkcQD7DewhJPNXrCuZwcKmqjb
       DB_DATABASE: konga_db
       NODE_ENV: production
