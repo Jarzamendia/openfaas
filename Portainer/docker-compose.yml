@@ -8,7 +8,6 @@ services:
       - /var/lib/docker/volumes:/var/lib/docker/volumes
     networks:
       - agent_net
-      - proxy_net
     deploy:
       mode: global
       placement:
@@ -21,6 +20,7 @@ services:
       - /swarm/portainer/data:/data
     networks:
       - agent_net
+      - proxy_net
     deploy:
       mode: replicated
       replicas: 1
