@@ -116,10 +116,10 @@ services:
 
   konga-prepare:
     image: pantsel/konga:next
-    command: "-c prepare -a postgres -u postgresql://kong@kong-database:5432/konga_db"
+    command: "-c prepare -a postgres -u postgresql://kong@postgres:5432/konga_db"
     networks:
       - proxy_net
-
+      - db_net
 
   konga:
     image: pantsel/konga:next
