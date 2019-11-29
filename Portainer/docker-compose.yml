@@ -34,5 +34,7 @@ services:
           - "traefik.http.services.portainer_service.loadbalancer.server.port=9000"
 
 networks:
-  agent_network:
+  agent_net:
+    external: true
+  proxy_net:
     external: true

@@ -38,6 +38,10 @@ Password: senha123
 
 http://traefik.docker.internal/dashboard/#/
 
+## Portainer
+
+docker stack deploy -c docker-compose.yml portainer --with-registry-auth
+
 ## Prometheus
 
 docker stack deploy -c docker-compose.yml prometheus --with-registry-auth
