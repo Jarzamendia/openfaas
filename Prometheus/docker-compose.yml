@@ -26,7 +26,7 @@ services:
                 memory: 500M
         labels:
             - "traefik.enable=true"
-            - "traefik.network=proxy_net"
+            - "traefik.docker.network=proxy_net"
             - "traefik.http.routers.prometheus_router.rule=Host(`prometheus.docker.internal`)"
             - "traefik.http.routers.prometheus_router.service=prometheus_service"
             - "traefik.http.routers.prometheus_router.entrypoints=http,https"
@@ -55,7 +55,7 @@ services:
                 - "node.platform.os == linux"
         labels:
             - "traefik.enable=true"
-            - "traefik.network=proxy_net"
+            - "traefik.docker.network=proxy_net"
             - "traefik.http.routers.alertmanager_router.rule=Host(`alertmanager.docker.internal`)"
             - "traefik.http.routers.alertmanager_router.service=alertmanager_service"
             - "traefik.http.routers.alertmanager_router.entrypoints=http,https"
@@ -79,7 +79,7 @@ services:
           - "node.platform.os == linux"
       labels:
         - "traefik.enable=true"
-        - "traefik.network=proxy_net"
+        - "traefik.docker.network=proxy_net"
         - "traefik.http.routers.grafana_router.rule=Host(`grafana.docker.internal`)"
         - "traefik.http.routers.grafana_router.service=grafana_service"
         - "traefik.http.routers.grafana_router.entrypoints=http,https"

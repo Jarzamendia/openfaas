@@ -40,7 +40,7 @@ services:
                     - "node.platform.os == linux"
             labels:
                 - "traefik.enable=true"
-                - "traefik.network=proxy_net"
+                - "traefik.docker.network=proxy_net"
                 - "traefik.http.routers.gateway_router.rule=Host(`faas.docker.internal`)"
                 - "traefik.http.routers.gateway_router.service=gateway_service"
                 - "traefik.http.routers.gateway_router.entrypoints=http,https"

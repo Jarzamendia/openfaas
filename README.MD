@@ -22,6 +22,7 @@ echo "P@sw0rd" | docker secret create basic-auth-password -
 
 # Networks
 
+docker network create -d overlay agent_net
 docker network create -d overlay proxy_net
 docker network create -d overlay --label openfaas=true function_net
 docker network create -d overlay db_net

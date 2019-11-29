@@ -82,7 +82,7 @@ services:
                 - "node.platform.os == linux"
         labels:
             - "traefik.enable=true"
-            - "traefik.network=proxy_net"
+            - "traefik.docker.network=proxy_net"
             - "traefik.http.routers.gkong_router.rule=Host(`kong.docker.internal`)"
             - "traefik.http.routers.kong_router.service=kong_service"
             - "traefik.http.routers.kong_router.entrypoints=http,https"

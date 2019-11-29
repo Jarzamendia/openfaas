@@ -48,7 +48,7 @@ services:
                 - "node.platform.os == linux"
             labels:
                 - "traefik.enable=true"
-                - "traefik.network=proxy_net"
+                - "traefik.docker.network=proxy_net"
                 - "traefik.http.routers.keycloak_router.rule=Host(`keycloak.docker.internal`)"
                 - "traefik.http.routers.keycloak_router.service=keycloak_service"
                 - "traefik.http.routers.keycloak_router.entrypoints=http,https"

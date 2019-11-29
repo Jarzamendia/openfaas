@@ -21,7 +21,7 @@ services:
           - "node.role == manager"
       labels:
         - "traefik.enable=true"
-        - "traefik.network=proxy_net"
+        - "traefik.docker.network=proxy_net"
         - "traefik.http.routers.api_router.rule=Host(`traefik.docker.internal`) && ( PathPrefix(`/api`) || PathPrefix(`/dashboard`) )"
         - "traefik.http.routers.api_router.service=api@internal"
         - "traefik.http.routers.api_router.middlewares=api_auth"
