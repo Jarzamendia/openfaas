@@ -83,7 +83,7 @@ services:
         labels:
             - "traefik.enable=true"
             - "traefik.docker.network=proxy_net"
-            - "traefik.http.routers.gkong_router.rule=Host(`kong.docker.internal`)"
+            - "traefik.http.routers.kong_router.rule=Host(`kong.docker.internal`)"
             - "traefik.http.routers.kong_router.service=kong_service"
             - "traefik.http.routers.kong_router.entrypoints=http,https"
             - "traefik.http.services.kong_service.loadbalancer.server.port=8000"
@@ -126,6 +126,7 @@ services:
     restart: always
     networks:
         - proxy_net
+        - db_net
     environment:
       DB_ADAPTER: postgres
       DB_HOST: postgres
@@ -133,8 +134,25 @@ services:
       TOKEN_SECRET: km1GUr4RkcQD7DewhJPNXrCuZwcKmqjb
       DB_DATABASE: postgres
       NODE_ENV: production
-    ports:
-      - "1337:1337"
+    deploy:
+        resources:
+            limits:
+                memory: 200M
+        restart_policy:
+            condition: on-failure
+            delay: 5s
+            max_attempts: 20
+            window: 380s
+        placement:
+            constraints:
+                - "node.platform.os == linux"
+        labels:
+            - "traefik.enable=true"
+            - "traefik.docker.network=proxy_net"
+            - "traefik.http.routers.konga_router.rule=Host(`konga.docker.internal`)"
+            - "traefik.http.routers.konga_router.service=konga_service"
+            - "traefik.http.routers.konga_router.entrypoints=http,https"
+            - "traefik.http.services.konga_service.loadbalancer.server.port=1337"
 
 networks:
   db_net:
