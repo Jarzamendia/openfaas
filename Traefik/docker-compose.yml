@@ -4,6 +4,8 @@ services:
 
   traefik:
     image: traefik:v2.1.0-rc2
+    environment:
+      no_proxy: "portainer, prometheus, gateway, prometheus, alertmanager, grafana, kong, konga, keykloak"
     ports:
       - "80:80"
       - "443:443"
