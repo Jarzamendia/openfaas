@@ -113,6 +113,29 @@ services:
     volumes:
       - /swarm/kong/postgres/:/var/lib/postgresql/data
 
+
+  konga-prepare:
+    image: pantsel/konga:next
+    command: "-c prepare -a postgres -u postgresql://kong@kong-database:5432/konga_db"
+    networks:
+      - proxy_net
+
+
+  konga:
+    image: pantsel/konga:next
+    restart: always
+    networks:
+        - proxy_net
+    environment:
+      DB_ADAPTER: postgres
+      DB_HOST: postgres
+      DB_USER: kong
+      TOKEN_SECRET: km1GUr4RkcQD7DewhJPNXrCuZwcKmqjb
+      DB_DATABASE: postgres
+      NODE_ENV: production
+    ports:
+      - "1337:1337"
+
 networks:
   db_net:
     external: true
