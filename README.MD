@@ -6,6 +6,7 @@ mkdir -p /swarm/grafana/
 mkdir -p /swarm/alertmanager/data/
 mkdir -p /swarm/prometheus/data/
 mkdir -p /swarm/traefik/
+mkdir -p /swarm/portainer/data
 
 # Config
 
@@ -18,6 +19,13 @@ mkdir -p /swarm/traefik/
 
 echo "admin" | docker secret create basic-auth-user -
 echo "P@sw0rd" | docker secret create basic-auth-password -
+
+# Networks
+
+docker network create -d overlay agent_net
+docker network create -d overlay proxy_net
+docker network create -d overlay --label openfaas=true function_net
+docker network create -d overlay db_net
 
 # Order
 
