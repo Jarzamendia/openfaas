@@ -37,3 +37,5 @@ services:
 networks:
   proxy_net:
     external: true
+  agent_net:
+    external: true
