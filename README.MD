@@ -42,6 +42,8 @@ http://traefik.docker.internal/dashboard/#/
 
 docker stack deploy -c docker-compose.yml portainer --with-registry-auth
 
+http://portainer.docker.internal
+
 ## Prometheus
 
 docker stack deploy -c docker-compose.yml prometheus --with-registry-auth
