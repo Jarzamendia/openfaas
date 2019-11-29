@@ -63,11 +63,6 @@ services:
       - db_net
       - proxy_net
       - function_net
-    ports:
-      - "8000:8000/tcp"
-      - "8001:8001/tcp"
-      - "8443:8443/tcp"
-      - "8444:8444/tcp"
     healthcheck:
       test: ["CMD", "kong", "health"]
       interval: 10s
@@ -87,6 +82,7 @@ services:
                 - "node.platform.os == linux"
         labels:
             - "traefik.enable=true"
+            - "traefik.network=proxy_net"
             - "traefik.http.routers.gkong_router.rule=Host(`kong.docker.internal`)"
             - "traefik.http.routers.kong_router.service=kong_service"
             - "traefik.http.routers.kong_router.entrypoints=http,https"

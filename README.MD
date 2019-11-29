@@ -46,3 +46,7 @@ http://portainer.docker.internal
 ## Prometheus
 
 docker stack deploy -c docker-compose.yml prometheus --with-registry-auth
+
+http://grafana.docker.internal
+http://prometheus.docker.internal
+http://alertmanager.docker.internal
