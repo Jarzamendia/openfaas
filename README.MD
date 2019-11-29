@@ -24,7 +24,7 @@ echo "P@sw0rd" | docker secret create basic-auth-password -
 
 docker network create -d overlay agent_net
 docker network create -d overlay proxy_net
-docker network create -d overlay --label openfaas=true function_net
+docker network create -d overlay --label openfaas=true --attachable	 function_net
 docker network create -d overlay db_net
 
 # Order
@@ -51,3 +51,13 @@ docker stack deploy -c docker-compose.yml prometheus --with-registry-auth
 http://grafana.docker.internal
 http://prometheus.docker.internal
 http://alertmanager.docker.internal
+
+## OpenFaas
+
+docker stack deploy -c docker-compose.yml openfaas --with-registry-auth
+
+http://gateway.docker.internal
+
+## Kong
+
+docker stack deploy -c docker-compose.yml kong --with-registry-auth

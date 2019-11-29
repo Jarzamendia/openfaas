@@ -1,0 +1,8 @@
+provider:
+  name: openfaas
+  gateway: http://faas.docker.internal
+functions:
+  samplefunction:
+    lang: go
+    handler: ./samplefunction
+    image: jarzamendia/samplefunction:latest
